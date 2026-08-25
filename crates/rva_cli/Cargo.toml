@@ -1,0 +1,14 @@
+[package]
+name = "rva_cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "rva"
+path = "src/main.rs"
+
+[dependencies]
+rva_core = { path = "../rva_core" }
+clap = { version = "4", features = ["derive"] }
+anyhow = "1"

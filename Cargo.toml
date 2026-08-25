@@ -1,0 +1,8 @@
+[workspace]
+resolver = "2"
+members = ["crates/rva_core", "crates/rva_cli", "crates/rva_bench"]
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+version = "0.1.0"

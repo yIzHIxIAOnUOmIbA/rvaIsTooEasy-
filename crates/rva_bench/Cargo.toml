@@ -1,0 +1,8 @@
+[package]
+name = "rva_bench"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+rva_core = { path = "../rva_core" }

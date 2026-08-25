@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%sveltekit.assets%/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tauri + SvelteKit + Typescript App</title>
+    <style>
+      /* Globally suppress native scrolling: with html/body overflow:hidden, arrow keys and wheel are
+         no longer consumed by the document's native scrolling, so keydown/wheel are always dispatched
+         to the JS listeners (otherwise Enter works but arrows/wheel do not -- typically because the
+         document's native scrolling swallows the events). */
+      html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+    </style>
+    %sveltekit.head%
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div id="errbox" style="position:fixed;left:0;top:0;right:0;z-index:99999;background:#400;color:#fff;font:12px/1.4 monospace;white-space:pre-wrap;padding:4px;display:none"></div>
+    <script>
+      // Global error box: any JS error or unhandled rejection shows as a red bar at the top of the
+      // window, helping to determine whether "UI renders but all interactions fail" is caused by a
+      // runtime crash.
+      (function () {
+        function showErr(msg) {
+          var b = document.getElementById('errbox');
+          if (b) { b.style.display = 'block'; b.textContent += '\n' + msg; }
+        }
+        window.addEventListener('error', function (e) {
+          var stack = e.error && e.error.stack ? e.error.stack : '';
+          showErr('ERR ' + (e.message || (e.error && e.error.message) || e.error) + ' @' + (e.filename || '') + ':' + (e.lineno || ''));
+          if (stack) showErr('STACK ' + stack);
+        });
+        window.addEventListener('unhandledrejection', function (e) {
+          showErr('REJECT ' + ((e.reason && (e.reason.message || e.reason)) || e.reason));
+        });
+      })();
+    </script>
+    <div style="display: contents">%sveltekit.body%</div>
+    <script>
+      // Known Windows WebView2 pitfall: after window activation the document does not automatically
+      // gain keyboard focus, so arrow-key/wheel input over the panel area never dispatches keydown/wheel
+      // to JS (only Enter inside an input field works). Here we force focus onto body and window after
+      // load so arrow keys/wheel reach the page JS.
+      (function () {
+        function focusDoc() {
+          try {
+            document.body.setAttribute('tabindex', '0');
+            document.body.focus();
+            window.focus();
+          } catch (e) {}
+        }
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          focusDoc();
+        } else {
+          document.addEventListener('DOMContentLoaded', focusDoc);
+        }
+        // Re-focus the document every time the window gains OS focus
+        window.addEventListener('focus', focusDoc);
+        // Also try focusing on the first pointer interaction (native pointer events still reach the
+        // webview even when it is unfocused)
+        document.addEventListener('pointerdown', focusDoc, true);
+      })();
+    </script>
+  </body>
+</html>
